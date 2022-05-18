@@ -1,0 +1,84 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model categories {
+  id            Int       @id @default(autoincrement())
+  nome          Int
+  criado_em     DateTime  @default(now()) @db.DateTime(0)
+  atualizado_um DateTime  @default(now()) @db.DateTime(0)
+  estilos       estilos[]
+}
+
+model estilos {
+  id               Int                @id @default(autoincrement())
+  nome             String             @db.VarChar(255)
+  categoria_id     Int?
+  criado_em        DateTime           @default(now()) @db.DateTime(0)
+  atualizado_em    DateTime           @default(now()) @db.DateTime(0)
+  categories       categories?        @relation(fields: [categoria_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_64645f32ab3ec48802a973b2b29")
+  usuarios_estilos usuarios_estilos[]
+
+  @@index([categoria_id], map: "FK_64645f32ab3ec48802a973b2b29")
+}
+
+model perfil {
+  id            Int      @id @default(autoincrement())
+  nome          String   @db.VarChar(255)
+  descricao     String   @db.Text
+  criado_em     DateTime @default(now()) @db.DateTime(0)
+  atualizado_em DateTime @default(now()) @db.DateTime(0)
+}
+
+model provincias {
+  id            Int        @id @default(autoincrement())
+  nome          String     @db.VarChar(255)
+  criado_em     DateTime   @default(now()) @db.DateTime(0)
+  atualizado_um DateTime   @default(now()) @db.DateTime(0)
+  usuarios      usuarios[]
+}
+
+model usuario_perfil {
+  id            Int      @id @default(autoincrement())
+  usuario_id    Int
+  perfil_id     Int
+  criado_em     DateTime @default(now()) @db.DateTime(0)
+  atualizado_em DateTime @default(now()) @db.DateTime(0)
+}
+
+model usuarios {
+  id               Int                @id @default(autoincrement())
+  nome             String             @db.VarChar(255)
+  email            String             @db.VarChar(255)
+  telefone         Int
+  palavra_passe    String             @db.VarChar(255)
+  data_nascimento  String             @db.VarChar(50)
+  provincia_id     Int?
+  criado_em        DateTime           @default(now()) @db.DateTime(0)
+  atualizado_em    DateTime?          @db.DateTime(0)
+  verificada       Boolean?
+  imagem           String?            @db.VarChar(500)
+  code_verificacao Int?
+  provincias       provincias?        @relation(fields: [provincia_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_8d51ba3b6aca52ce4c0430e7647")
+  usuarios_estilos usuarios_estilos[]
+
+  @@index([provincia_id], map: "FK_8d51ba3b6aca52ce4c0430e7647")
+}
+
+model usuarios_estilos {
+  id            Int       @id @default(autoincrement())
+  usuario_id    Int?
+  estilo_id     Int?
+  criado_em     DateTime  @default(now()) @db.DateTime(0)
+  atualizado_em DateTime  @default(now()) @db.DateTime(0)
+  estilos       estilos?  @relation(fields: [estilo_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_4ce2d9bd57feeb3edc90dc75891")
+  usuarios      usuarios? @relation(fields: [usuario_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_ccb1993844a382025ca570206c0")
+
+  @@index([estilo_id], map: "FK_4ce2d9bd57feeb3edc90dc75891")
+  @@index([usuario_id], map: "FK_ccb1993844a382025ca570206c0")
+}
